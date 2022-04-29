@@ -1,0 +1,6 @@
+[submodule "extern/log.c"]
+	path = extern/log.c
+	url = https://github.com/rxi/log.c.git
+[submodule "extern/stb"]
+	path = extern/stb
+	url = https://github.com/nothings/stb.git

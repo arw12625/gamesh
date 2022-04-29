@@ -50,7 +50,7 @@ set(GLFW_INSTALL OFF CACHE INTERNAL "Generate installation target")
 FetchContent_Declare(
         glfw
         GIT_REPOSITORY https://github.com/glfw/glfw
-		GIT_SHALLOW TRUE
+		GIT_SHALLOW ON
 )
 FetchContent_MakeAvailable(glfw)
 #target_link_libraries(glfw)
@@ -62,7 +62,7 @@ set(GLAD_GENERATOR "c" CACHE STRING "Language to generate the binding for")
 FetchContent_Declare(
         glad
         GIT_REPOSITORY https://github.com/Dav1dde/glad.git
-		GIT_SHALLOW TRUE
+		GIT_SHALLOW ON
 )
 FetchContent_MakeAvailable(glad)
 #target_link_libraries(glfw)
@@ -84,13 +84,15 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
 endif()
 
 
-
-
 # The compiled library code is here
 add_subdirectory(src)
 
+# External libraries are here
+add_subdirectory(extern)
+
 # The executable code is here
 add_subdirectory(apps)
+
 
 # Testing only available if this is the main app
 if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
