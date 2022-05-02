@@ -3,4 +3,5 @@
 
 int test_add(int a, int b);
 
-#endif /* LIB_H */
+#endif
+/* LIB_H */

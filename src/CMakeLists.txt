@@ -1,10 +1,10 @@
 # Note that headers are optional, and do not affect add_library, but they will not
 # show up in IDEs unless they are listed in add_library.
 
-set(HEADER_LIST "${GaMesh_SOURCE_DIR}/include/gamesh/lib.h")
+set(HEADER_LIST "${GaMesh_SOURCE_DIR}/include/gamesh/lib.h" "${GaMesh_SOURCE_DIR}/include/gamesh/con_queue.h")
 
 # Make an automatic library - will be static or dynamic based on user setting
-add_library(gamesh_library lib.c ${HEADER_LIST})
+add_library(gamesh_library lib.c con_queue.c ${HEADER_LIST})
 
 # We need this directory, and users of our library will need it too
 target_include_directories(gamesh_library PUBLIC ../include)
