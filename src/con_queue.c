@@ -66,6 +66,7 @@ int con_queue_enqueue_array(con_queue_t *q, const void *data, size_t num_data) {
   return 0;
 }
 
+
 int con_queue_dequeue_array(con_queue_t *q, void *data, size_t *num_data, size_t max_num_data) {
 	if(max_num_data <= 0) {
 		*num_data = 0;
@@ -77,7 +78,6 @@ int con_queue_dequeue_array(con_queue_t *q, void *data, size_t *num_data, size_t
   for(i = 0; i < max_num_data; i++) {
 	  con_queue_node_t *next_node = last_node->next;
 	  if (next_node == NULL) {
-		pthread_mutex_unlock(&q->_head_lock);
 		//memset(data, 0, q->data_size);
 		break;
 	  }
