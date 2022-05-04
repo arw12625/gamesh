@@ -1,4 +1,4 @@
-#include <gamesh/msg_aggregator.h>
+#include <gamesh/message.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -95,7 +95,7 @@ int gam_msg_agg_on_update(const gam_msg_agg *agg) {
 
 int gam_msg_format(const gam_msg *m, char *buf, size_t buf_size) {
 	
-	char *format = "Game message\n"
+	char *format = "\nGame message\n"
 				"On message: 0x%p\n"
 				#if DEBUG
 				"Originating\n"

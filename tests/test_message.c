@@ -1,4 +1,4 @@
-#include <gamesh/msg_aggregator.h>
+#include <gamesh/message.h>
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -9,7 +9,7 @@ int test_val = 0;
 const int num_sum = 100;
 bool done = false;
 
-int test_on_msg(const void *args, size_t args_size) {
+int test_on_msg(void *args, size_t args_size) {
 	assert(args_size == sizeof(int));
 	test_val += *((int *) args);
 	//test_val += (int)(*args);
@@ -34,10 +34,10 @@ void *write(void *ptr) {
 }
 
 int main() {
-	gam_msg_agg_init(&agg);
+	assert(gam_msg_agg_init(&agg) == 0);
+	
 	int test_arg = 1;
-	_gam_msg_send(&agg, false, test_on_msg, &test_arg, sizeof(int),
-				 time(NULL), __LINE__, __FILE__);
+	gam_msg_send(&agg, false, test_on_msg, &test_arg, sizeof(int));
 	assert(test_val == 0);
 	gam_msg_agg_on_update(&agg);
 	assert(test_val == 1);

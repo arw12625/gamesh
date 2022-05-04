@@ -1,10 +1,13 @@
+#ifndef MESSAGE_H
+#define MESSAGE_H
+
 #include <gamesh/con_queue.h>
 #include <time.h>
 #include <stdbool.h>
 
 #define MSG_BUFFER_SIZE 100
 
-typedef int (*gam_on_msg)(const void *args, size_t args_size);
+typedef int (*gam_on_msg)(void *args, size_t args_size);
 
 typedef struct msg_agg_t {
 	con_queue_t *_msg_queue;
@@ -70,3 +73,6 @@ int _gam_msg_send(const gam_msg_agg *agg, bool immediate, const gam_on_msg on_ms
 				  , time_t msg_time, size_t msg_line, char *msg_file
 #endif
 				 );
+				 
+#endif
+/* HEADER_H */
