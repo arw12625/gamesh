@@ -36,7 +36,8 @@ void *write(void *ptr) {
 int main() {
 	gam_msg_agg_init(&agg);
 	int test_arg = 1;
-	gam_msg_send(&agg, false, test_on_msg, &test_arg, sizeof(int));
+	_gam_msg_send(&agg, false, test_on_msg, &test_arg, sizeof(int),
+				 time(NULL), __LINE__, __FILE__);
 	assert(test_val == 0);
 	gam_msg_agg_on_update(&agg);
 	assert(test_val == 1);

@@ -81,5 +81,6 @@ int main(void) {
 	pthread_join(enq, NULL);
 	pthread_join(deq, NULL);
 
+	assert(con_queue_free(&q) == 0);
 	return 0;
 }

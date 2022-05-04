@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define MSG_BUFFER_SIZE 100
 #define MSG_MAX_FILE_SIZE 128
 
 typedef struct msg_t_ {
@@ -35,12 +34,11 @@ int gam_msg_agg_free(gam_msg_agg *agg) {
 int gam_msg_free(gam_msg *m) {
 	//memset(m->args, 0, m->args_size);
 	free(m->args);
-	free(m);
+	//free(m);
 	return 0;
 }
 
 int actual_msg_send(const gam_msg_agg *agg, gam_msg *m) {
-	
 	int ret_val = m->on_msg(m->args, m->args_size);
 	gam_msg_free(m);
 	return ret_val;
@@ -51,7 +49,9 @@ int _gam_msg_send(const gam_msg_agg *agg, bool immediate, const gam_on_msg on_ms
 				  , time_t msg_time, size_t msg_line, char *msg_file
 #endif
 				 ) {
-	gam_msg *m = malloc(sizeof(gam_msg));
+	//gam_msg *m = malloc(sizeof(gam_msg));
+	gam_msg mm;
+	gam_msg *m = &mm;
 	if(m == NULL) {
 		return 1;
 	}
@@ -69,7 +69,7 @@ int _gam_msg_send(const gam_msg_agg *agg, bool immediate, const gam_on_msg on_ms
 	#if DEBUG
 	m->msg_time = msg_time;
 	m->msg_line = msg_line;
-	memcpy(m->msg_file, msg_file, MSG_MAX_FILE_SIZE);
+	strncpy(m->msg_file, msg_file, MSG_MAX_FILE_SIZE);
 	#endif
 	
 	if(immediate) {
@@ -88,7 +88,7 @@ int gam_msg_agg_on_update(const gam_msg_agg *agg) {
 	size_t i;
 	int ret_val = 0;
 	for(i = 0; i < num_avail && ret_val == 0; i++) {
-		ret_val = actual_msg_send(agg, msg_buf + i);
+		ret_val = actual_msg_send(agg, msg_buf+i);
 	}
 	return ret_val;
 }
@@ -97,7 +97,6 @@ int gam_msg_format(const gam_msg *m, char *buf, size_t buf_size) {
 	
 	char *format = "Game message\n"
 				"On message: 0x%p\n"
-				"%p\n"
 				#if DEBUG
 				"Originating\n"
 				"\ttime: %s\n"
@@ -109,7 +108,7 @@ int gam_msg_format(const gam_msg *m, char *buf, size_t buf_size) {
 	char time_buf[64];
 	strftime(time_buf, 64, "%m/%d/%Y, %H:%M:%S", localtime(&m->msg_time));
 	#endif
-	snprintf(buf, buf_size, format, m->on_msg, m->args
+	snprintf(buf, buf_size, format, m->on_msg
 				#if DEBUG
 				, time_buf, m->msg_line, m->msg_file
 				#endif

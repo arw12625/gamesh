@@ -136,7 +136,11 @@ int con_queue_dequeue(con_queue_t *q, void *data) {
 int con_queue_free(con_queue_t *q) {
 	con_queue_node_t *tmp;
 	
+	tmp = q->_head;
+	q->_head = tmp->next;
+	free(tmp);
 	while(q->_head != NULL) {
+		printf("HEHE");
 		tmp = q->_head;
 		q->_head = tmp->next;
 		free(tmp->data);
