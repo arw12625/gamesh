@@ -7,7 +7,7 @@
 // TODO - unify DEBUG info, i.e. set max file size for all files
 #define TEMPLATE_EVENT_MAX_FILE_SIZE 128
 
-int gam_template_event_format(const gam_template_event *e, char *buf, size_t buf_size
+int gam_template_event_format(const GamTemplateEvent *e, char *buf, size_t buf_size
 	#if DEBUG
 				   , time_t msg_time, size_t msg_line, char *msg_file
 	#endif
@@ -34,30 +34,30 @@ int gam_template_event_format(const gam_template_event *e, char *buf, size_t buf
 	return 0;
 }
 
-int gam_template_event_agg_init(gam_template_event_agg *agg) {
-	agg->_event_queue = malloc(sizeof(con_queue_t));
-	if(agg->_event_queue == NULL) {
+int gam_template_event_agg_init(GamTemplateEventAgg *agg) {
+	agg->_eventQueue = malloc(sizeof(ConQueue));
+	if(agg->_eventQueue == NULL) {
 		return 1;
 	}
-	memset(agg->_consumers, 0, TEMPLATE_EVENT_MAX_NUM_CONSUMERS);
-	agg->_num_consumers = 0;
-	return con_queue_init(agg->_event_queue, sizeof(gam_template_event));
+	memset(agg->_listeners, 0, TEMPLATE_EVENT_MAX_NUM_LISTENERS);
+	agg->_numListeners = 0;
+	return con_queue_init(agg->_eventQueue, sizeof(GamTemplateEvent));
 }
 
-int gam_template_event_agg_free(gam_template_event_agg *agg) {
-	return con_queue_free(agg->_event_queue);
+int gam_template_event_agg_free(GamTemplateEventAgg *agg) {
+	return con_queue_free(agg->_eventQueue);
 }
 
-int actual_event_dispatch(const gam_template_event_agg *agg, const gam_template_event *e) {
+int actual_event_dispatch(const GamTemplateEventAgg *agg, const GamTemplateEvent *e) {
 	int ret_val = 0;
 	size_t i;
-	for(i = 0; i < agg->_num_consumers && ret_val == 0; i++) {
-		ret_val = agg->_consumers[i](e);
+	for(i = 0; i < agg->_numListeners && ret_val == 0; i++) {
+		ret_val = agg->_listeners[i](e);
 	}
 	return ret_val;
 }
 
-int _gam_template_event_dispatch(const gam_template_event_agg *agg, bool immediate, const gam_template_event *e
+int _gam_template_event_dispatch(const GamTemplateEventAgg *agg, bool immediate, const GamTemplateEvent *e
 #if DEBUG
 				  , time_t msg_time, size_t msg_line, char *msg_file
 #endif
@@ -72,25 +72,25 @@ int _gam_template_event_dispatch(const gam_template_event_agg *agg, bool immedia
 	if(immediate) {
 		return actual_event_dispatch(agg, e);
 	} else {
-		return con_queue_enqueue(agg->_event_queue, e);
+		return con_queue_enqueue(agg->_eventQueue, e);
 	}
 }
 
-int gam_template_event_agg_register(gam_template_event_agg *agg, gam_on_template_event on_template_event) {
-	agg->_consumers[agg->_num_consumers++] = on_template_event;
+int gam_template_event_agg_add(GamTemplateEventAgg *agg, GamOnTemplateEvent on_template_event) {
+	agg->_listeners[agg->_numListeners++] = on_template_event;
 	return 0;
 }
 
-int gam_template_event_agg_on_update(const gam_template_event_agg *agg) {
-	size_t num_avail = 0;
-	gam_template_event event_buf[TEMPLATE_EVENT_BUFFER_SIZE];
-	if(con_queue_dequeue_array(agg->_event_queue, event_buf, &num_avail, TEMPLATE_EVENT_BUFFER_SIZE) != 0) {
+int gam_template_event_agg_update(const GamTemplateEventAgg *agg) {
+	size_t numAvail = 0;
+	GamTemplateEvent eventBuf[TEMPLATE_EVENT_BUFFER_SIZE];
+	if(con_queue_dequeue_array(agg->_eventQueue, eventBuf, &numAvail, TEMPLATE_EVENT_BUFFER_SIZE) != 0) {
 		return 1;
 	}
 	size_t i;
-	int ret_val = 0;
-	for(i = 0; i < num_avail && ret_val == 0; i++) {
-		ret_val = actual_event_dispatch(agg, event_buf+i);
+	int retVal = 0;
+	for(i = 0; i < numAvail && retVal == 0; i++) {
+		retVal = actual_event_dispatch(agg, eventBuf+i);
 	}
-	return ret_val;
+	return retVal;
 }

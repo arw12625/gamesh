@@ -7,11 +7,11 @@
 
 #define MSG_BUFFER_SIZE 100
 
-typedef int (*gam_on_msg)(void *args, size_t args_size);
+typedef int (*GamOnMsg)(void *args, size_t argsSize);
 
 typedef struct msg_agg_t {
-	con_queue_t *_msg_queue;
-} gam_msg_agg;
+	ConQueue *_msgQueue;
+} GamMsgAgg;
 
 /**
  * @brief Initialize the message aggregator.
@@ -20,7 +20,7 @@ typedef struct msg_agg_t {
  * @param agg Pointer to the aggregator.
  * @return Returns 0 if successful, nonzero otherwise.
  */
-int gam_msg_agg_init(gam_msg_agg *agg);
+int gam_msg_agg_init(GamMsgAgg *agg);
 
 /**
  * @brief Free the message aggregator.
@@ -29,46 +29,46 @@ int gam_msg_agg_init(gam_msg_agg *agg);
  * @param agg Pointer to the aggregator.
  * @return Returns 0 if successful, nonzero otherwise.
  */
-int gam_msg_agg_free(gam_msg_agg *agg);
+int gam_msg_agg_free(GamMsgAgg *agg);
 
 /**
  * @brief Update message aggregator to process messages.
  *
  * Update the message aggregator at @p agg to process messages.
  * Pops an array of MSG_BUFFER_SIZE messages from the queue,
- * and calls their on_msg function with the provided argument.
+ * and calls their onMsg function with the provided argument.
  * @param agg Pointer to the aggregator.
  * @return Returns 0 if successful, nonzero otherwise.
  */
-int gam_msg_agg_on_update(const gam_msg_agg *agg);
+int gam_msg_agg_update(const GamMsgAgg *agg);
 
 // TODO - document macro in doxygen
 /**
  * @brief Send a message using the aggregator.
  *
  * Use the aggregator at @p agg to send a message.
- * On sending, the @p on_msg function is called with arguments
- * @p args and @p args_size. This is done immediately if 
+ * On sending, the @p onMsg function is called with arguments
+ * @p args and @p argsSize. This is done immediately if 
  * @p immediate is true, otherwise the message is placed on a queue.
  * This allows queuing of messages on one queue and sending on another.
  * @param agg Pointer to the aggregator.
  * @param immediate Whether or not to immediately send the message.
- * @param on_msg Pointer to function to call on sending.
- * @param args Pointer to arguments for @p on_msg.
- * @param args_size Size of arguments in @p args.
+ * @param onMsg Pointer to function to call on sending.
+ * @param args Pointer to arguments for @p onMsg.
+ * @param argsSize Size of arguments in @p args.
  * @return Returns 0 if successful, nonzero otherwise.
  */
 
 #if DEBUG
-#define gam_msg_send(agg, immediate, on_msg, args, args_size) \
-		(_gam_msg_send(agg, immediate, on_msg, args, args_size, \
+#define gam_msg_send(agg, immediate, onMsg, args, argsSize) \
+		(_gam_msg_send(agg, immediate, onMsg, args, argsSize, \
 					   time(NULL), __LINE__, __FILE__))
 #else
-#define gam_msg_send(agg, immediate, on_msg, args, args_size) \
-		(_gam_msg_send(agg, immediate, on_msg, args, args_size))
+#define gam_msg_send(agg, immediate, onMsg, args, argsSize) \
+		(_gam_msg_send(agg, immediate, onMsg, args, argsSize))
 #endif
 
-int _gam_msg_send(const gam_msg_agg *agg, bool immediate, const gam_on_msg on_msg, const void *args, size_t args_size
+int _gam_msg_send(const GamMsgAgg *agg, bool immediate, const GamOnMsg onMsg, const void *args, size_t argsSize
 #if DEBUG
 				  , time_t msg_time, size_t msg_line, char *msg_file
 #endif

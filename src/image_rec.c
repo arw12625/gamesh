@@ -10,12 +10,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-int gam_image_agg_init(gam_image_agg *agg) {
-	agg->_msg_agg = malloc(sizeof(agg->_msg_agg));
-	gam_msg_agg_init(agg->_msg_agg);
+int gam_image_agg_init(GamImageAgg *agg) {
+	agg->_msgAgg = malloc(sizeof(agg->_msgAgg));
+	gam_msg_agg_init(agg->_msgAgg);
 	memset(agg->_images, 0, IMAGE_REC_MAX_NUM_IMAGES);
-	agg->_num_images = 0;
-	if(agg->_msg_agg != NULL) {
+	agg->_numImages = 0;
+	if(agg->_msgAgg != NULL) {
 		return 0;
 	} else {
 		return 1;
@@ -23,54 +23,54 @@ int gam_image_agg_init(gam_image_agg *agg) {
 }
 
 
-int gam_image_agg_free(gam_image_agg *agg) {
-	gam_msg_agg_free(agg->_msg_agg);
-	free(agg->_msg_agg);
+int gam_image_agg_free(GamImageAgg *agg) {
+	gam_msg_agg_free(agg->_msgAgg);
+	free(agg->_msgAgg);
 	return 0;
 }
 
-int gam_image_agg_on_update(const gam_image_agg *agg) {
-	return gam_msg_agg_on_update(agg->_msg_agg);
+int gam_image_agg_update(const GamImageAgg *agg) {
+	return gam_msg_agg_update(agg->_msgAgg);
 }
 
-struct image_context_t {
-	gam_image_agg *agg;
-	gam_image_rec *image;
+struct GamImageContext {
+	GamImageAgg *agg;
+	GamImageRec *image;
 };
 
-int actual_image_load(gam_image_agg *agg, gam_image_rec *image) {
+int actual_image_load(GamImageAgg *agg, GamImageRec *image) {
     image->img = stbi_load(image->file, &image->width, &image->height, &image->channels, 0);
     if(image->img == NULL) {
         log_error("Error in loading the image: %s\n", image->file);
         return 1;
     }
-	agg->_images[agg->_num_images++] = image;
+	agg->_images[agg->_numImages++] = image;
 	return 0;
 }
 
 int actual_image_load_wrapper(void *args, size_t args_size) {
-	if(args_size != sizeof(struct image_context_t)) {
+	if(args_size != sizeof(struct GamImageContext)) {
 		return 1;
 	}
-	struct image_context_t context = *(struct image_context_t*)args;
+	struct GamImageContext context = *(struct GamImageContext*)args;
 	return actual_image_load(context.agg, context.image);
 }
 
-int gam_image_load(gam_image_agg *agg, gam_image_rec *image, char *image_file, bool immediate) {
-	image->file = malloc(strlen(image_file) + 1);
+int gam_image_load(GamImageAgg *agg, GamImageRec *image, char *imageFile, bool immediate) {
+	image->file = malloc(strlen(imageFile) + 1);
 	if(image->file == NULL) {
 		return 1;
 	}
-	strcpy(image->file, image_file);
+	strcpy(image->file, imageFile);
 	
-	struct image_context_t context;
+	struct GamImageContext context;
 	context.agg = agg;
 	context.image = image;
-	return gam_msg_send(agg->_msg_agg, immediate, actual_image_load_wrapper, &context, sizeof(context));
+	return gam_msg_send(agg->_msgAgg, immediate, actual_image_load_wrapper, &context, sizeof(context));
 }
 
 
-int gam_image_free(const gam_image_agg *agg, gam_image_rec *image) {
+int gam_image_free(const GamImageAgg *agg, GamImageRec *image) {
 	// TODO - should remove from aggregator?
 	stbi_image_free(image->img);
 	free(image->file);

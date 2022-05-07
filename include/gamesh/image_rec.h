@@ -6,19 +6,19 @@
 
 #define IMAGE_REC_MAX_NUM_IMAGES 100
 
-typedef struct image_rec_t {
+typedef struct GamImageRec {
 	char *file;
 	unsigned char *img;
 	int width;
 	int height;
 	int channels;
-} gam_image_rec;
+} GamImageRec;
 
-typedef struct image_agg_t {
-	gam_msg_agg *_msg_agg;
-	gam_image_rec *_images[IMAGE_REC_MAX_NUM_IMAGES];
-	size_t _num_images;
-} gam_image_agg;
+typedef struct GamImageAgg {
+	GamMsgAgg *_msgAgg;
+	GamImageRec *_images[IMAGE_REC_MAX_NUM_IMAGES];
+	size_t _numImages;
+} GamImageAgg;
 
 /**
  * @brief Initialize the image aggregator.
@@ -27,7 +27,7 @@ typedef struct image_agg_t {
  * @param agg Pointer to the aggregator.
  * @return Returns 0 if successful, nonzero otherwise.
  */
-int gam_image_agg_init(gam_image_agg *agg);
+int gam_image_agg_init(GamImageAgg *agg);
 
 /**
  * @brief Free the image aggregator.
@@ -36,7 +36,7 @@ int gam_image_agg_init(gam_image_agg *agg);
  * @param agg Pointer to the aggregator.
  * @return Returns 0 if successful, nonzero otherwise.
  */
-int gam_image_agg_free(gam_image_agg *agg);
+int gam_image_agg_free(GamImageAgg *agg);
 
 /**
  * @brief Update image aggregator to process image commands.
@@ -45,7 +45,7 @@ int gam_image_agg_free(gam_image_agg *agg);
  * @param agg Pointer to the aggregator.
  * @return Returns 0 if successful, nonzero otherwise.
  */
-int gam_image_agg_on_update(const gam_image_agg *agg);
+int gam_image_agg_update(const GamImageAgg *agg);
 
 /**
  * @brief Load an image.
@@ -57,7 +57,7 @@ int gam_image_agg_on_update(const gam_image_agg *agg);
  * @param immediate Whether to load image immediately or add to queue.
  * @return Returns 0 if successful, nonzero otherwise.
  */
-int gam_image_load(gam_image_agg *agg, gam_image_rec *image, char *image_file, bool immediate);
+int gam_image_load(GamImageAgg *agg, GamImageRec *image, char *image_file, bool immediate);
 
 /**
  * @brief Free an image.
@@ -67,6 +67,6 @@ int gam_image_load(gam_image_agg *agg, gam_image_rec *image, char *image_file, b
  * @param image Pointer to the image.
  * @return Returns 0 if successful, nonzero otherwise.
  */
-int gam_image_free(const gam_image_agg *agg, gam_image_rec *image);		 
+int gam_image_free(const GamImageAgg *agg, GamImageRec *image);		 
 #endif
 /* IMAGE_REC_H */

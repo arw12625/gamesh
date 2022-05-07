@@ -6,17 +6,17 @@
 #include <stdbool.h>
 
 #define TEMPLATE_EVENT_BUFFER_SIZE 100
-#define TEMPLATE_EVENT_MAX_NUM_CONSUMERS 100
+#define TEMPLATE_EVENT_MAX_NUM_LISTENERS 100
 
-typedef int gam_template_event;
+typedef int GamTemplateEvent;
 
-typedef int (*gam_on_template_event)(const gam_template_event *e);
+typedef int (*GamOnTemplateEvent)(const GamTemplateEvent *e);
 
-typedef struct template_event_agg_t {
-	con_queue_t *_event_queue;
-	gam_on_template_event _consumers[TEMPLATE_EVENT_MAX_NUM_CONSUMERS];
-	size_t _num_consumers;
-} gam_template_event_agg;
+typedef struct GamTemplateEventAgg {
+	ConQueue *_eventQueue;
+	GamOnTemplateEvent _listeners[TEMPLATE_EVENT_MAX_NUM_LISTENERS];
+	size_t _numListeners;
+} GamTemplateEventAgg;
 
 /**
  * @brief Initialize the event aggregator.
@@ -25,7 +25,7 @@ typedef struct template_event_agg_t {
  * @param agg Pointer to the aggregator.
  * @return Returns 0 if successful, nonzero otherwise.
  */
-int gam_template_event_agg_init(gam_template_event_agg *agg);
+int gam_template_event_agg_init(GamTemplateEventAgg *agg);
 
 /**
  * @brief Free the event aggregator.
@@ -34,7 +34,7 @@ int gam_template_event_agg_init(gam_template_event_agg *agg);
  * @param agg Pointer to the aggregator.
  * @return Returns 0 if successful, nonzero otherwise.
  */
-int gam_template_event_agg_free(gam_template_event_agg *agg);
+int gam_template_event_agg_free(GamTemplateEventAgg *agg);
 
 /**
  * @brief Update event aggregator to process events.
@@ -45,7 +45,7 @@ int gam_template_event_agg_free(gam_template_event_agg *agg);
  * @param agg Pointer to the aggregator.
  * @return Returns 0 if successful, nonzero otherwise.
  */
-int gam_template_event_agg_on_update(const gam_template_event_agg *agg);
+int gam_template_event_agg_update(const GamTemplateEventAgg *agg);
 
 /**
  * @brief Add a consumer to the event aggregator.
@@ -55,7 +55,7 @@ int gam_template_event_agg_on_update(const gam_template_event_agg *agg);
  * @param on_template_event Pointer to the consumer as a function.
  * @return Returns 0 if successful, nonzero otherwise.
  */
-int gam_template_event_agg_register(gam_template_event_agg *agg, gam_on_template_event on_template_event);
+int gam_template_event_agg_add(GamTemplateEventAgg *agg, GamOnTemplateEvent on_template_event);
 
 // TODO - document macro in doxygen
 /**
@@ -83,7 +83,7 @@ int gam_template_event_agg_register(gam_template_event_agg *agg, gam_on_template
 		(_gam_template_event_dispatch(agg, immediate, event))
 #endif
 
-int _gam_template_event_dispatch(const gam_template_event_agg *agg, bool immediate, const gam_template_event *event
+int _gam_template_event_dispatch(const GamTemplateEventAgg *agg, bool immediate, const GamTemplateEvent *event
 #if DEBUG
 				  , time_t msg_time, size_t msg_line, char *msg_file
 #endif

@@ -7,14 +7,14 @@
 
 #define TEST_ARR_SIZE 1000
 
-con_queue_t q;
-int queue_vals[TEST_ARR_SIZE];
+ConQueue q;
+int queueVals[TEST_ARR_SIZE];
 
 void *enqueue(void *ptr) {
 	size_t i; 
 	for(i = 0; i < TEST_ARR_SIZE; i++) {
 		//printf("En: %d\n", i);
-		con_queue_enqueue(&q, queue_vals+i);
+		con_queue_enqueue(&q, queueVals+i);
 	}
 	pthread_exit(NULL);
 }
@@ -26,7 +26,7 @@ void *dequeue(void *ptr) {
 		//printf("De\n");
 		int success = con_queue_dequeue(&q, &x);
 		if(success == 0) {
-			assert(x == queue_vals[i]);
+			assert(x == queueVals[i]);
 			//printf("De: %d\n", i);
 			i++;
 		}
@@ -58,19 +58,19 @@ int main(void) {
 
 	size_t i;
 	int d[5] = {1,2,3,4,5};
-	size_t num_d = 5;
+	size_t numD = 5;
 	int buf[5];
-	size_t num_buf;
-	assert(con_queue_enqueue_array(&q, d, num_d) == 0);
-	assert(con_queue_get_size(&q) == num_d);
-	assert(con_queue_dequeue_array(&q, buf, &num_buf, num_d) == 0);
+	size_t numBuf;
+	assert(con_queue_enqueue_array(&q, d, numD) == 0);
+	assert(con_queue_get_size(&q) == numD);
+	assert(con_queue_dequeue_array(&q, buf, &numBuf, numD) == 0);
 	assert(con_queue_is_empty(&q));
-	for(i = 0; i < num_d; i++) {
+	for(i = 0; i < numD; i++) {
 		assert(d[i] == buf[i]);
 	}
 
 	for(i = 0; i < TEST_ARR_SIZE; i++) {
-		queue_vals[i] = i * i - 500;
+		queueVals[i] = i * i - 500;
 	}
 
 	pthread_t enq;

@@ -14,21 +14,22 @@
 // Messages: describe task to accomplish, usually known destination
 // Events: describe things that have happened, usually unknown destination, possibly multiple
 
-typedef struct __node_t {
+typedef struct ConQueueNode {
   void *data;
-  struct __node_t *next;
-} con_queue_node_t;
+  struct ConQueueNode *next;
+} ConQueueNode;
 
-typedef struct __queue_t {
-  size_t data_size;
-  con_queue_node_t *_head;
-  con_queue_node_t *_tail;
-  pthread_mutex_t _head_lock;
-  pthread_mutex_t _tail_lock;
-} con_queue_t;
+typedef struct ConQueue {
+  size_t _dataSize;
+  ConQueueNode *_head;
+  ConQueueNode *_tail;
+  pthread_mutex_t _headLock;
+  pthread_mutex_t _tailLock;
+} ConQueue;
 
 
-#endif /* LOCK_CON_QUEUE */
+#endif
+/* LOCK_CON_QUEUE */
 
 /* TODO - implement bounded queue with multiple readers/writers. See
 https://pages.cs.wisc.edu/~remzi/OSTEP/threads-locks-usage.pdf
@@ -39,12 +40,12 @@ https://github.com/remzi-arpacidusseau/ostep-code/blob/master/threads-cv/pc.c
 /**
  * @brief Initialize the concurrent queue.
  *
- * Initialize a concurrent queue at @p q with entries having constant size @p data_size.
+ * Initialize a concurrent queue at @p q with entries having constant size @p _dataSize.
  * @param q Pointer to the queue.
- * @param data_size Size of entries in the queue.
+ * @param _dataSize Size of entries in the queue.
  * @return Returns 0 if successful, nonzero otherwise.
  */
-int con_queue_init(con_queue_t *q, size_t data_size);
+int con_queue_init(ConQueue *q, size_t _dataSize);
 
 /**
  * @brief Push an entry to the queue.
@@ -55,7 +56,7 @@ int con_queue_init(con_queue_t *q, size_t data_size);
  * @param data Pointer to data to be added.
  * @return Returns 0 if successful, nonzero otherwise.
  */
-int con_queue_enqueue(con_queue_t *q, const void *data);
+int con_queue_enqueue(ConQueue *q, const void *data);
 
 /**
  * @brief Pop an entry from the queue.
@@ -66,7 +67,7 @@ int con_queue_enqueue(con_queue_t *q, const void *data);
  * @param data Pointer to data to be popped.
  * @return Returns 0 if successful, nonzero otherwise.
  */
-int con_queue_dequeue(con_queue_t *q, void *data);
+int con_queue_dequeue(ConQueue *q, void *data);
 
 /**
  * @brief Push an array of entries to the queue.
@@ -78,21 +79,21 @@ int con_queue_dequeue(con_queue_t *q, void *data);
  * @param num_data Number of entries to add.
  * @return Returns 0 if successful, nonzero otherwise.
  */
-int con_queue_enqueue_array(con_queue_t *q, const void *data, size_t num_data);
+int con_queue_enqueue_array(ConQueue *q, const void *data, size_t num_data);
 
 /**
  * @brief Pop multiple entries from the queue into an array.
  *
  * Pop entries from the head of the queue @p q and store result at @p data.
- * The number of entries popped is the minimum of the total number of entries in the queue and @p max_num_data.
+ * The number of entries popped is the minimum of the total number of entries in the queue and @p maxNumData.
  * This locks others from popping.
  * @param q Pointer to the queue.
  * @param data Pointer to store the popped data.
  * @param num_data Pointer to store the number of entries popped at.
- * @param max_num_data The maximum number of entries to be popped.
+ * @param maxNumData The maximum number of entries to be popped.
  * @return Returns 0 if successful, nonzero otherwise.
  */
- int con_queue_dequeue_array(con_queue_t *q, void *data, size_t *num_data, size_t max_num_data);
+ int con_queue_dequeue_array(ConQueue *q, void *data, size_t *num_data, size_t maxNumData);
 
 /**
  * @brief Free the queue from memory.
@@ -101,7 +102,7 @@ int con_queue_enqueue_array(con_queue_t *q, const void *data, size_t num_data);
  * @param q Pointer to the queue.
  * @return Returns 0 if successful, nonzero otherwise.
  */
-int con_queue_free(con_queue_t *q);
+int con_queue_free(ConQueue *q);
 
 /**
  * @brief Get the number of entries in the queue
@@ -110,7 +111,7 @@ int con_queue_free(con_queue_t *q);
  * @param q Pointer to the queue.
  * @return Returns the number of entries.
  */
-size_t con_queue_get_size(con_queue_t *q);
+size_t con_queue_get_size(ConQueue *q);
 
 /**
  * @brief Check if the queue is empty.
@@ -120,7 +121,7 @@ size_t con_queue_get_size(con_queue_t *q);
  * @return Returns if the queue is empty.
  * @warning the queue being nonempty does not guarantee it will be for subsequent operations under multithreading
  */
-bool con_queue_is_empty(con_queue_t *q);
+bool con_queue_is_empty(ConQueue *q);
 
 #endif
 /* CON_QUEUE_H */

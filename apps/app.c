@@ -1,63 +1,84 @@
-#include <gamesh/lib.h>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#include <gamesh/window.h>
+#include <gamesh/human_input.h>
 
 #include <stdio.h>
 
 #include <log.h>
 
-
-
-
 #include <pthread.h>
 
-void *print_message_function( void *ptr );
 
 void gam_init_log();
 void gam_close_log();
 void log_lock_func(bool lock, void *udata);
 
+int onKey(const GamKeyEvent *e);
+int onMouseDelta(const GamMouseDeltaEvent *e);
+int onMousePos(const GamMousePosEvent *e);
+int onMouseButton(const GamMouseButtonEvent *e);
+
 int main(void) {
 	gam_init_log();
+	log_info("Initializing");
 	
-	int a = 1;
-	int b = 2;
-	int absum = test_add(a, b);
-    log_info("%d + %d = %d\n", a, b, absum);
+	GamWindow* window;
+
+    /* Initialize the library */
+    if (!glfwInit())
+        return -1;
+
+    /* Create a windowed mode window and its OpenGL context */
+    window = gam_window_create(GAM_WINDOW_GLFW, 640, 480, "Hello World", NULL, NULL);
+    if (!window)
+    {
+        glfwTerminate();
+        return -1;
+    }
+
+
+	GamInput gamInput;
+	gam_input_init(&gamInput);
+	gam_input_add_window(&gamInput, window);
+	gam_input_add_on_key(&gamInput, onKey);
+	gam_input_add_on_mouse_delta(&gamInput, onMouseDelta);
+	gam_input_add_on_mouse_pos(&gamInput, onMousePos);
+	gam_input_add_on_mouse_button(&gamInput, onMouseButton);
+
+    /* Make the window's context current */
+    gam_window_make_context_current(window);
+	
+	gladLoadGL();
+
+	log_info("Entering app loop");
+    /* Loop until the user closes the window */
+    while (!gam_window_should_close(window))
+    {
+        /* Render here */
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        /* Swap front and back buffers */
+        gam_window_swap_buffers(window);
+
+        /* Poll for and process events */
+        glfwPollEvents();
+		gam_input_update(&gamInput);
+    }
+
+	gam_input_free(&gamInput);
+
+    glfwTerminate();
 	
 	
-	pthread_t thread1, thread2;
-    char *message1 = "Thread 1";
-    char *message2 = "Thread 2";
-    int  iret1, iret2;
-
-    /* Create independent threads each of which will execute function */
-
-    iret1 = pthread_create( &thread1, NULL, print_message_function, (void*) message1);
-    iret2 = pthread_create( &thread2, NULL, print_message_function, (void*) message2);
-
-    /* Wait till threads are complete before main continues. Unless we  */
-    /* wait we run the risk of executing an exit which will terminate   */
-    /* the process and all threads before the threads have completed.   */
-
-    pthread_join( thread1, NULL);
-    pthread_join( thread2, NULL); 
-
-    log_info("Thread 1 returns: %d\n",iret1);
-    log_info("Thread 2 returns: %d\n",iret2);
-    
-	
+	log_info("Exiting");
 	gam_close_log();
 	
 	return 0;
 }
 
-static int x = 0;
-void *print_message_function( void *ptr )
-{
-     char *message;
-     message = (char *) ptr;
-     log_info("%s \n", message);
-     log_info("%d \n", ++x);
-}
+
 
 // Logging
 
@@ -66,7 +87,7 @@ static FILE *log_fp;
 void gam_init_log(void) {
 	if (pthread_mutex_init(&gam_log_mutex, NULL) != 0)
     {
-        printf("\n mutex init failed\n");
+        log_error("\n mutex init failed\n");
         exit(1);
     }
 	log_set_lock(log_lock_func, &gam_log_mutex);
@@ -86,4 +107,27 @@ void log_lock_func(bool lock, void *udata) {
 	} else {
 		pthread_mutex_unlock(udata);
 	}
+}
+
+// input logging
+
+int onKey(const GamKeyEvent *e) {
+	log_info("Key Event\tkey %d \tscan %d \taction%d \tmods%d",
+			 e->key, e->scanCode, e->action, e->mods);
+	return 0;
+}
+
+int onMouseDelta(const GamMouseDeltaEvent *e) {
+	log_info("Mouse delta\tx %f\ty %f", e->xpos, e->ypos);			 
+	return 0;
+}
+int onMousePos(const GamMousePosEvent *e) {
+	log_info("Mouse pos\tx %f\ty %f", e->xpos, e->ypos);
+	return 0;
+}
+
+int onMouseButton(const GamMouseButtonEvent *e) {
+	log_info("Mouse button\tbutton %d\taction %d\tmods %d",
+			 e->button, e->action, e->mods);
+	return 0;
 }
