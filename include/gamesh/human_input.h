@@ -25,8 +25,8 @@ typedef struct GamKeyEvent {
 
 typedef struct GamMouseDeltaEvent {
 	GamWindow* window;
-	double xpos;
-	double ypos;
+	double xdelta;
+	double ydelta;
 } GamMouseDeltaEvent;
 
 typedef struct GamMousePosEvent {
@@ -82,6 +82,7 @@ int gam_input_init(GamInput *agg);
  * Free the input aggregator at @p agg.
  * @param agg Pointer to the aggregator.
  * @return Returns 0 if successful, nonzero otherwise.
+ * @warning Must be called from GLFW main thread for GLFW windows.
  */
 int gam_input_free(GamInput *agg);
 
@@ -92,6 +93,7 @@ int gam_input_free(GamInput *agg);
  * @param agg Pointer to the aggregator.
  * @param window Pointer to the window.
  * @return Returns 0 if successful, nonzero otherwise.
+ * @warning Must be called from GLFW main thread for GLFW windows.
  */
 int gam_input_add_window(GamInput *agg, GamWindow *window);
 
@@ -103,6 +105,7 @@ int gam_input_add_window(GamInput *agg, GamWindow *window);
  * @param agg Pointer to the aggregator.
  * @param window Pointer to the window.
  * @return Returns 0 if successful, nonzero otherwise.
+ * @warning Must be called from GLFW main thread for GLFW windows.
  */
 int gam_input_remove_window(GamInput *agg, GamWindow *window);
 
@@ -158,6 +161,17 @@ int gam_input_add_on_mouse_pos(GamInput *agg, GamOnMousePos onMousePos);
  * @return Returns 0 if successful, nonzero otherwise.
  */
 int gam_input_add_on_mouse_button(GamInput *agg, GamOnMouseButton onMouseButton);
+
+
+/**
+ * @brief Enable the cursor of the window.
+ *
+ * @param agg Pointer to the aggregator.
+ * @param window Pointer to the window.
+ * @param enabled Whether or not to enable.
+ * @return Returns 0 if successful, nonzero otherwise.
+ */
+int gam_input_enable_cursor(GamInput *agg, GamWindow* window, bool enabled);
 
 // TODO Add methods for removing listeners
 

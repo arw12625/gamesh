@@ -8,12 +8,19 @@
 static int mockWindowCount = 0;
 
 
+
 GamWindow* gam_window_create(GamWindowType windowType, int width, int height, const char *title, void *monitor, void *share) {
 	GamWindow *window = malloc(sizeof(GamWindow));
 	window->windowType = windowType;
 	window->_inputAgg = NULL;
 	window->onKey = NULL;
 	window->onMouseButton = NULL;
+	window->cursorToChange = false;
+	window->cursorEnabled = true;
+	window->xpos = 0;
+	window->ypos = 0;
+	window->xdelta = 0;
+	window->ydelta = 0;
 	switch(windowType) {
 		case GAM_WINDOW_GLFW:
 			window->_internal.glfw = glfwCreateWindow(width, height, title, monitor, share);
@@ -74,19 +81,6 @@ int gam_window_should_close(GamWindow* window) {
 	return 1;
 }
 
-void gam_window_get_cursor_pos(GamWindow* window, double *xpos, double *ypos) {
-	switch(window->windowType) {
-		case GAM_WINDOW_GLFW:
-			glfwGetCursorPos(window->_internal.glfw, xpos, ypos);
-			break;
-		case GAM_WINDOW_MOCK:
-			*xpos = window->_internal.mock->xpos;
-			*ypos = window->_internal.mock->ypos;
-			break;
-	}
-}
-
-
 void glfw_on_mouse_button(GLFWwindow* glfwWindow, int button, int action, int mods) {
 	void *user = glfwGetWindowUserPointer(glfwWindow);
 	if(user == NULL) {
@@ -129,4 +123,61 @@ void gam_window_set_on_key(GamWindow *window, GamOnKey onKey) {
 	if(window->windowType == GAM_WINDOW_GLFW) {
 		glfwSetKeyCallback(window->_internal.glfw, glfw_on_key);
 	}
+}
+
+void gam_window_update(GamWindow *window) {
+	bool changed = window->cursorToChange;
+	if(window->cursorToChange) {
+		switch(window->windowType) {
+			case GAM_WINDOW_GLFW:
+				if(window->cursorEnabled) {
+					glfwSetInputMode(window->_internal.glfw, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+					glfwSetInputMode(window->_internal.glfw, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
+				} else {
+					glfwSetInputMode(window->_internal.glfw, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+					if(glfwRawMouseMotionSupported()) {
+						glfwSetInputMode(window->_internal.glfw, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+					}
+				}
+				break;
+			case GAM_WINDOW_MOCK:
+				break;
+		}
+		window->cursorEnabled = !window->cursorEnabled;
+		window->cursorToChange = false;
+	}
+	
+	double oldx = window->xpos;
+	double oldy = window->ypos;
+	switch(window->windowType) {
+		case GAM_WINDOW_GLFW:	
+			glfwGetCursorPos(window->_internal.glfw, &window->xpos, &window->ypos);
+			break;
+		case GAM_WINDOW_MOCK:
+			window->xpos = window->_internal.mock->xpos;
+			window->ypos = window->_internal.mock->ypos;
+			break;
+	}
+	if(changed) {
+		window->xdelta = 0;
+		window->ydelta = 0;
+	} else {
+		window->xdelta = window->xpos - oldx;
+		window->ydelta = window->ypos - oldy;
+	}
+}
+
+bool gam_window_is_cursor_delta(GamWindow *window) {
+	return window->cursorEnabled;
+}
+
+void gam_window_set_cursor_mode(GamWindow *window, bool enabled) {
+	switch(window->windowType) {
+		case GAM_WINDOW_GLFW:
+			
+			break;
+		case GAM_WINDOW_MOCK:
+			break;
+	}	
+	window->cursorToChange = (enabled != window->cursorEnabled);
 }

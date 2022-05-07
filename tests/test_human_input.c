@@ -64,13 +64,14 @@ int main(void) {
 				break;
 			case 90:
 				window->onMouseButton(&e2);
+				gam_window_set_cursor_mode(window, !window->cursorEnabled);
 				break;
 		}
-		if(testVal == 3) {
+		if(testVal == 4) {
 			window->_internal.mock->shouldClose = 1;
 		}
 		i++;
-		
+		gam_window_update(window);
 		gam_input_update(&gamInput);
     }
 
@@ -90,11 +91,14 @@ int onKey(const GamKeyEvent *e) {
 }
 
 int onMouseDelta(const GamMouseDeltaEvent *e) {
+	if(testVal == 1 && e->xdelta == testXPos && e->ydelta == testYPos) {
+		testVal++;
+	}
 	return 0;
 }
 
 int onMousePos(const GamMousePosEvent *e) {
-	if(testVal == 1 && e->xpos == testXPos && e->ypos == testYPos) {
+	if(testVal == 3 && e->xpos == testXPos && e->ypos == testYPos) {
 		testVal++;
 	}
 	return 0;

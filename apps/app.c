@@ -52,6 +52,7 @@ int main(void) {
 	
 	gladLoadGL();
 
+	size_t i = 0;
 	log_info("Entering app loop");
     /* Loop until the user closes the window */
     while (!gam_window_should_close(window))
@@ -64,10 +65,17 @@ int main(void) {
 
         /* Poll for and process events */
         glfwPollEvents();
+		gam_window_update(window);
 		gam_input_update(&gamInput);
+		
+		if(i % 300 == 0) {
+			gam_window_set_cursor_mode(window, !window->cursorEnabled);
+		}
+		i++;
     }
 
 	gam_input_free(&gamInput);
+	gam_window_free(window);
 
     glfwTerminate();
 	
@@ -77,7 +85,6 @@ int main(void) {
 	
 	return 0;
 }
-
 
 
 // Logging
@@ -118,7 +125,7 @@ int onKey(const GamKeyEvent *e) {
 }
 
 int onMouseDelta(const GamMouseDeltaEvent *e) {
-	log_info("Mouse delta\tx %f\ty %f", e->xpos, e->ypos);			 
+	log_info("Mouse delta\tx %f\ty %f", e->xdelta, e->ydelta);			 
 	return 0;
 }
 int onMousePos(const GamMousePosEvent *e) {

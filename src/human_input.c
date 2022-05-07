@@ -19,7 +19,7 @@ int gam_input_init(GamInput *agg) {
 int gam_input_free(GamInput *agg) {
 	size_t i;
 	for(i = 0; i < agg->_numWindows; i++) {
-		agg->_windows[i]->_inputAgg = NULL;
+		gam_input_remove_window(agg, agg->_windows[i]);
 	}
 	int r1 = con_queue_free(&agg->_keyQueue);
 	int r4 = con_queue_free(&agg->_mouseButtonQueue);
@@ -65,30 +65,35 @@ int gam_input_add_window(GamInput *agg, GamWindow *window) {
 }
 
 int gam_input_remove_window(GamInput *agg, GamWindow *window) {
-	log_error("NOT IMPLEMENTED");
+	log_error("NOT COMPLETELY IMPLEMENTED");
+	
+	window->_inputAgg = NULL;
+	gam_window_set_on_key(window, NULL);
+	gam_window_set_on_mouse_button(window, NULL);
 	return 1;
 }
 
 int gam_input_update(GamInput *agg) {
-	// Must call glfwPollEvents() before
+	// Must call gam_window_update() before
 	size_t i, j;
 	for(i = 0; i < agg->_numWindows; i++) {
-		double xpos, ypos;
-		GamMousePosEvent pe;
-		GamMouseDeltaEvent de;
-		gam_window_get_cursor_pos(agg->_windows[i], &xpos, &ypos);
-		pe.window = agg->_windows[i];
-		pe.xpos = xpos;
-		pe.ypos = ypos;
-		de.window = agg->_windows[i];
-		de.xpos = xpos;
-		de.ypos = ypos;
-		
-		for(j = 0; j < agg->_numMouseDeltaListeners; j++) {
-			agg->_mouseDeltaListeners[j](&de);
-		}
-		for(j = 0; j < agg->_numMousePosListeners; j++) {
-			agg->_mousePosListeners[j](&pe);
+		GamWindow *window = agg->_windows[i];
+		if(!gam_window_is_cursor_delta(window)) {
+			GamMousePosEvent pe;
+			pe.window = window;
+			pe.xpos = window->xpos;
+			pe.ypos = window->ypos;
+			for(j = 0; j < agg->_numMousePosListeners; j++) {
+				agg->_mousePosListeners[j](&pe);
+			}
+		} else {
+			GamMouseDeltaEvent de;
+			de.window = window;
+			de.xdelta = window->xdelta;
+			de.ydelta = window->ydelta;
+			for(j = 0; j < agg->_numMouseDeltaListeners; j++) {
+				agg->_mouseDeltaListeners[j](&de);
+			}
 		}
 	}
 	GamKeyEvent ke;
@@ -131,4 +136,20 @@ int gam_input_add_on_mouse_button(GamInput *agg, GamOnMouseButton onMouseButton)
 	return 0;
 }
 
+int gam_input_enable_cursor(GamInput *agg, GamWindow* window, bool enabled) {
+	size_t i;
+	bool found = false;
+	for(i = 0; i < agg->_numWindows; i++) {
+		if(window == agg->_windows[i]) {
+			found = true;
+			break;
+		}
+	}
+	if(!found) {
+		log_error("Window not found");
+		return 1;
+	}
+	gam_window_set_cursor_mode(window, enabled);
+	return 0;
+}
 
