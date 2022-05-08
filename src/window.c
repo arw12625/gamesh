@@ -81,12 +81,24 @@ int gam_window_should_close(GamWindow* window) {
 	return 1;
 }
 
+void gam_window_set_should_close(GamWindow* window) {
+	switch(window->windowType) {
+		case GAM_WINDOW_GLFW:
+			glfwSetWindowShouldClose(window->_internal.glfw, 1);
+		case GAM_WINDOW_MOCK:
+			window->_internal.mock->shouldClose = true;
+	}
+}
+
 void glfw_on_mouse_button(GLFWwindow* glfwWindow, int button, int action, int mods) {
 	void *user = glfwGetWindowUserPointer(glfwWindow);
 	if(user == NULL) {
 		log_error("GLFW window does not have user set for callbacks");
 	}
 	GamWindow *window = user;
+	if(window->onMouseButton == NULL) {
+		return;
+	}
 	GamMouseButtonEvent e;
 	e.window = window;
 	e.button = button;
@@ -109,6 +121,9 @@ void glfw_on_key(GLFWwindow* glfwWindow, int key, int scanCode, int action, int 
 		log_error("GLFW window does not have user set for callbacks");
 	}
 	GamWindow *window = user;
+	if(window->onKey == NULL) {
+		return;
+	}
 	GamKeyEvent e;
 	e.window = window;
 	e.key = key;

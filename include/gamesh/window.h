@@ -98,13 +98,23 @@ void gam_window_make_context_current(GamWindow* window);
 void gam_window_swap_buffers(GamWindow *window);
 
 /**
+ * @brief Check if window should close.
+ *
+ * Check if window @p window should close.
+ * Can be called from any thread.
+ * @param window Pointer to the window
+ */
+int gam_window_should_close(GamWindow *window);
+
+
+/**
  * @brief Notify the window it should close.
  *
  * Notify the window @p window to close.
  * Can be called from any thread.
  * @param window Pointer to the window
  */
-int gam_window_should_close(GamWindow *window);
+void gam_window_set_should_close(GamWindow* window);
 
 
 /**

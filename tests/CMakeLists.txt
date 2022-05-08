@@ -1,12 +1,19 @@
 
-SET(BASE_TEST_LIST "con_queue" "message" "template_event" "image_rec" "human_input")
+SET(BASE_TEST_LIST "con_queue" "message" "template_event" "image_rec" "human_input" "misc")
+SET(INTERACTIVE_TEST_LIST "window")
 
 foreach(T IN LISTS BASE_TEST_LIST)
-	
 add_executable("test_${T}" "test_${T}.c")
 target_link_libraries("test_${T}" PRIVATE gamesh_library log_library glfw glad)
 add_test(NAME "test_${T}_test" COMMAND "test_${T}") 
+set_tests_properties("test_${T}_test" PROPERTIES LABELS "base")
+endforeach()
 
+foreach(T IN LISTS INTERACTIVE_TEST_LIST)
+add_executable("test_${T}" "test_${T}.c")
+target_link_libraries("test_${T}" PRIVATE gamesh_library log_library glfw glad)
+add_test(NAME "test_${T}_test" COMMAND "test_${T}") 
+set_tests_properties("test_${T}_test" PROPERTIES LABELS "interactive")
 endforeach()
 
 
