@@ -5,5 +5,5 @@
 	path = extern/stb
 	url = https://github.com/nothings/stb.git
 [submodule "Nuklear"]
-	path = Nuklear
+	path = extern/Nuklear
 	url = https://github.com/Immediate-Mode-UI/Nuklear.git

@@ -11,3 +11,8 @@ target_include_directories(log_library PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/log.c
 add_library(stb_library INTERFACE)
 target_include_directories(stb_library INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/stb")
 
+
+#Nuklear
+# Make an interface library
+add_library(nuklear_library INTERFACE)
+target_include_directories(nuklear_library INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/Nuklear")

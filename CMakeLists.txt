@@ -59,9 +59,11 @@ FetchContent_MakeAvailable(glfw)
 #target_link_libraries(glfw)
 
 # Glad
-set(GLAD_PROFILE "core" CACHE STRING "OpenGL profile")
-set(GLAD_API "gl=" CACHE STRING "API type/version pairs, like \"gl=3.2,gles=\", no version means latest")
+set(GLAD_PROFILE "compatibility" CACHE STRING "OpenGL profile")
+set(GLAD_API "gl=4.6" CACHE STRING "API type/version pairs, like \"gl=3.2,gles=\", no version means latest")
 set(GLAD_GENERATOR "c" CACHE STRING "Language to generate the binding for")
+# TODO this isn't working to load the desired extensions
+set(GLAD_EXTENSIONS "GL_ARB_bindless_texture,GL_ARB_gpu_shader_int64" CACHE STRING "Path to extensions file or comma separated list of extensions, if missing all extensions are included")
 FetchContent_Declare(
         glad
         GIT_REPOSITORY https://github.com/Dav1dde/glad.git
