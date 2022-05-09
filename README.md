@@ -65,16 +65,16 @@ cmake --build build --target test
 
 Alternatively to use CTest to run all tests`
 ```bash
-CTest --test-directory tests
+CTest --test-directory build
 ```
 
 A subset of tests whose labels match a regex can be run using the `-L` option.
 For example to run base tests
 ```bash
-CTest --test-directory tests -L base
+CTest --test-directory build -L base
 ```
 
 Or to run interactive tests
 ```bash
-CTest --test-directory tests -L interactive
+CTest --test-directory build -L interactive
 ```
