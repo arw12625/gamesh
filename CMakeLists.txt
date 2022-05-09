@@ -86,7 +86,9 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
     endif()
 endif()
 
+# set debug mode
 add_definitions(-DDEBUG)
+
 # The compiled library code is here
 add_subdirectory(src)
 
